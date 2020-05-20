@@ -1,0 +1,13 @@
+---
+packages:
+  - 'ldap-utils'
+  - 'sudo'
+  - 'sssd-ldap'
+  - 'sssd-tools'
+  - 'libnss-sss'
+  - 'libpam-sss'
+
+autofs_packages:
+  - 'autofs'
+
+openldap_conffile: '/etc/ldap/ldap.conf'

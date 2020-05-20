@@ -1,0 +1,12 @@
+---
+packages:
+  - 'openldap-clients'
+  - 'sssd-ldap'
+  - 'sudo'
+  - 'oddjob-mkhomedir'
+  - 'authconfig'
+
+openldap_conffile: '/etc/openldap/ldap.conf'
+
+os_specific_services:
+  - {'name':'oddjobd', 'enabled':'yes', 'masked':'no', 'state':'started'}

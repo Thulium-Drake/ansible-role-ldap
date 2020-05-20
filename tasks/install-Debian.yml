@@ -1,0 +1,20 @@
+---
+- name: 'Install packages'
+  apt:
+    name: "{{ packages }}"
+    state: 'present'
+    install_recommends: false
+    update_cache: true
+
+- name: 'Install autofs packages'
+  apt:
+    name: "{{ autofs_packages }}"
+    state: 'present'
+  when: ldap_domain.autofs_searchbase is defined
+
+- name: 'Place PAM config'
+  copy:
+    src: 'ldaphomedir'
+    dest: '/usr/share/pam-configs/ldaphomedir'
+    mode: 0644
+  notify: 'reconfigure debian pam'

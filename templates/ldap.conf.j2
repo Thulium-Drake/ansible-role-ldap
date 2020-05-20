@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+BASE        {{ ldap_domain.searchbase }}
+URI         {% for server in ldap_domain.servers %}ldap://{{ server }}{{ "" if loop.last else "," }} {% endfor %}
+
+TLS_CACERT  {{ ldap_domain.cacert }}
+TLS_REQCERT {{ ldap_domain.reqcert }}

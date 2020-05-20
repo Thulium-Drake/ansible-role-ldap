@@ -1,0 +1,29 @@
+---
+- name: 'restart sssd'
+  service:
+    name: 'sssd'
+    state: 'restarted'
+
+- name: 'restart autofs'
+  service:
+    name: 'autofs'
+    state: 'restarted'
+  when: ldap_domain.autofs_searchbase is defined
+
+- name: 'reconfigure debian pam'
+  command: '/usr/sbin/pam-auth-update --force'
+  environment:
+    DEBIAN_FRONTEND: 'noninteractive'
+  when: ansible_os_family == "Debian"
+
+- name: 'reconfigure redhat pam'
+  command: "/usr/sbin/authconfig \
+    --enablesssd --enablerfc2307bis \
+    --enablesssdauth --disableforcelegacy \
+    --enablelocauthorize --enablemkhomedir \
+    --enablepamaccess --updateall"
+  when: ansible_os_family == "RedHat"
+
+- name: 'clear sssd cache'
+  command: '/usr/sbin/sss_cache -E'
+  ignore_errors: true

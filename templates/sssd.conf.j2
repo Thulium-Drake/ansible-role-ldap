@@ -1,0 +1,49 @@
+# {{ ansible_managed }}
+[sssd]
+config_file_version = 2
+services = nss, pam {% if ldap_domain.autofs_searchbase is defined %}, autofs{% endif %}
+
+domains = {{ ldap_domain.name }}
+
+[nss]
+
+[pam]
+{% if ldap_domain.cache_credentials_expiration is defined %}offline_credentials_expiration = {{ ldap_domain.cache_credentials_expiration }}{% endif %}
+
+
+{% if ldap_domain.autofs_searchbase is defined %}[autofs]{% endif %}
+
+
+[domain/{{ ldap_domain.name }}]
+id_provider = ldap
+auth_provider = ldap
+ldap_schema = rfc2307
+ldap_uri ={% for server in ldap_domain.servers %} ldap://{{ server }}{{ "" if loop.last else "," }} {% endfor %}
+
+ldap_search_base = {{ ldap_domain.searchbase }}
+fallback_homedir = {{ ldap_sssd_homedir }}
+default_shell = {{ ldap_default_shell }}
+enumerate = {{ ldap_domain.enumerate }}
+{% if ldap_domain.cache_credentials is defined %}cache_credentials = {{ ldap_domain.cache_credentials }}{% endif %}
+
+{% if ldap_domain.starttls is defined %}ldap_id_use_start_tls = {{ ldap_domain.starttls }}{% endif %}
+
+{% if ldap_domain.cacert is defined %}ldap_tls_cacert= {{ ldap_domain.cacert }}{% endif %}
+
+{% if ldap_domain.reqcert is defined %}ldap_tls_reqcert= {{ ldap_domain.reqcert }}{% endif %}
+
+{% if ldap_domain.bind_dn is defined %}
+ldap_default_authtok_type = password
+ldap_default_bind_dn = {{ ldap_domain.bind_dn }}
+ldap_default_authtok = {{ ldap_domain.bind_password }}
+{% endif %}
+
+{% if ldap_domain.autofs_searchbase is defined %}
+autofs_provider=ldap
+ldap_autofs_search_base = {{ ldap_domain.autofs_searchbase }}
+ldap_autofs_map_object_class=automountMap
+ldap_autofs_map_name=ou
+ldap_autofs_entry_object_class=automount
+ldap_autofs_entry_key=cn
+ldap_autofs_entry_value=automountInformation
+{% endif %}
