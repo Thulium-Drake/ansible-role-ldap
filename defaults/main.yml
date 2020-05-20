@@ -1,9 +1,13 @@
 ---
+###
+# Client settings
+###
+
 # Common settings for all domains
 ldap_sssd_homedir: '/home/%u'
 ldap_default_shell: '/bin/bash'
 
-# Domains to configure, options marked * are optional and can be left out
+# Domain to configure, options marked * are optional and can be left out
 ldap_domain:
   name: 'example.com'                                         # Domain name of the domain
   searchbase: 'dc=example,dc=com'                             # LDAP search base
