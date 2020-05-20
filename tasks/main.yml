@@ -10,21 +10,14 @@
   template:
     dest: "{{ conffile.dest }}"
     src: "{{ conffile.src }}"
-    mode: 0644
+    mode: "{{ conffile.mode }}"
     owner: 'root'
     group: 'root'
   loop:
-    - {src: 'ldap.conf.j2', dest: "{{ openldap_conffile }}"}
+    - {src: 'ldap.conf.j2', mode: '0644', dest: "{{ openldap_conffile }}"}
+    - {src: 'sssd.conf.j2', mode: '0600', dest: '/etc/sssd/sssd.conf'}
   loop_control:
     loop_var: 'conffile'
-
-- name: "Configure SSSD"
-  template:
-    dest: "/etc/sssd/sssd.conf"
-    src: "sssd.conf.j2"
-    mode: 0600
-    owner: 'root'
-    group: 'root'
   notify:
     - reconfigure redhat pam
     - reconfigure debian pam
@@ -32,7 +25,7 @@
     - restart autofs
     - clear sssd cache
 
-- name: "Enable services - Common"
+- name: 'Enable services - Common'
   systemd:
     name: "{{ service.name }}"
     enabled: "{{ service.enabled }}"
@@ -44,7 +37,7 @@
   loop_control:
     loop_var: 'service'
 
-- name: "Enable services - AutoFS"
+- name: 'Enable services - AutoFS'
   systemd:
     name: "{{ service.name }}"
     enabled: "{{ service.enabled }}"
@@ -54,8 +47,17 @@
     - {'name':'autofs', 'enabled':'yes', 'masked':'no', 'state':'started'}
   loop_control:
     loop_var: 'service'
+  when: ldap_domain.autofs_searchbase is defined
 
-- name: "Configure services - OS-specific"
+- name: 'Configure NSS'
+  lineinfile:
+    path: '/etc/nsswitch.conf'
+    line: 'automount:      files sss'
+    regexp: '^automount'
+    state: 'present'
+  when: ldap_domain.autofs_searchbase is defined
+
+- name: 'Configure services - OS-specific'
   systemd:
     name: "{{ service.name }}"
     enabled: "{{ service.enabled }}"
@@ -66,12 +68,12 @@
     loop_var: 'service'
   when: os_specific_services is defined
 
-- name: "Configure Sudo permissions for admin users"
+- name: 'Configure Sudo permissions for admin users'
   template:
-    dest: "/etc/sudoers.d/10_linux_admins"
-    src: "sudoers_10_linux_admins"
+    src: 'sudoers_10_linux_admins.j2'
+    dest: '/etc/sudoers.d/10_linux_admins'
     mode: 0440
-    validate: "visudo -cf %s"
+    validate: 'visudo -cf %s'
     owner: 'root'
     group: 'root'
-  when: ldap_configure_sudo
+  when: ldap_domain.linux_admins is defined

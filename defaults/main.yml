@@ -3,19 +3,15 @@
 ldap_sssd_homedir: '/home/%u'
 ldap_default_shell: '/bin/bash'
 
-# Configure sudo permissions for the administrative groups defined in the
-# domains below
-ldap_configure_sudo: false
-
 # Domains to configure, options marked * are optional and can be left out
 ldap_domain:
-  name: 'example.com'                       # Domain name of the domain
-  searchbase: 'dc=example,dc=com'           # LDAP search base
-  servers:                                  # hostnames for the LDAP servers
+  name: 'example.com'                                         # Domain name of the domain
+  searchbase: 'dc=example,dc=com'                             # LDAP search base
+  servers:                                                    # hostnames for the LDAP servers
     - 'ldap1.example.com'
     - 'ldap2.example.com'
-  linux_admins: 'netsudo'                                     # Group to configure sudo for, if enabled
   enumerate: false                                            # Enumerate the whole directory for searches
+  linux_admins: 'netsudo'                                     #* Group to configure sudo for, if defined
   starttls: true                                              #* Use STARTTLS or not (note: LDAPS is not supported)
   cacert: '/etc/ssl/certs/cacert.pem'                         #* LDAP server root CA certificate
   reqcert: 'demand'                                           #* Require certfificate for LDAP connections

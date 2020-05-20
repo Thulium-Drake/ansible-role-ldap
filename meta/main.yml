@@ -3,7 +3,7 @@ galaxy_info:
   author: Jeffrey van Pelt
   description: LDAP authentication (server and client)
   company:
-  role_name: ldap_auth
+  role_name: ldap
 
   license: GPLv3
 
@@ -12,11 +12,9 @@ galaxy_info:
   platforms:
     - name: Debian
       versions:
-        - stretch
         - buster
     - name: Ubuntu
       versions:
-        - bionic
         - focal
     - name: EL
       versions:
@@ -29,5 +27,6 @@ galaxy_info:
     - sssd
     - server
     - client
+    - autofs
 
 dependencies: []

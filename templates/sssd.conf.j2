@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 [sssd]
 config_file_version = 2
-services = nss, pam {% if ldap_domain.autofs_searchbase is defined %}, autofs{% endif %}
+services = nss, pam{% if ldap_domain.autofs_searchbase is defined %}, autofs{% endif %}
 
 domains = {{ ldap_domain.name }}
 
@@ -18,7 +18,7 @@ domains = {{ ldap_domain.name }}
 id_provider = ldap
 auth_provider = ldap
 ldap_schema = rfc2307
-ldap_uri ={% for server in ldap_domain.servers %} ldap://{{ server }}{{ "" if loop.last else "," }} {% endfor %}
+ldap_uri ={% for server in ldap_domain.servers %} ldap://{{ server }}{{ "" if loop.last else "," }}{% endfor %}
 
 ldap_search_base = {{ ldap_domain.searchbase }}
 fallback_homedir = {{ ldap_sssd_homedir }}
