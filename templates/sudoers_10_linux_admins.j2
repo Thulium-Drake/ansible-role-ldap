@@ -1,0 +1,2 @@
+# {{ ansible_managed }}
+%{{ ldap_domain.linux_admins|regex_replace(' ','\ ')|lower }} ALL=(ALL) NOPASSWD:ALL
