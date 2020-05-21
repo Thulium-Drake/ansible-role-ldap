@@ -4,3 +4,9 @@
     name: "{{ packages }}"
     state: 'present'
     update_cache: true
+
+- name: 'Install autofs packages'
+  yum:
+    name: "{{ autofs_packages }}"
+    state: 'present'
+  when: ldap_domain.autofs_searchbase is defined

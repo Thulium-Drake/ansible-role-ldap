@@ -6,6 +6,9 @@ packages:
   - 'oddjob-mkhomedir'
   - 'authconfig'
 
+autofs_packages:
+  - 'autofs'
+
 openldap_conffile: '/etc/openldap/ldap.conf'
 
 os_specific_services:
