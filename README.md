@@ -1,3 +1,5 @@
+[![Build Status](https://drone.element-networks.nl/api/badges/Element-Networks/ansible-role_ldap/status.svg)](https://drone.element-networks.nl/Element-Networks/ansible-role_ldap)
+
 # LDAP role
 This role will join a Debian or RedHat machine to bind against a LDAP directory.
 
