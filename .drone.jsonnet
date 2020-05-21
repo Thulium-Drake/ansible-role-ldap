@@ -5,7 +5,6 @@ local Converge(distro) = {
     "molecule destroy",
     "molecule converge",
     "molecule idempotence",
-    "molecule verify",
     "molecule destroy",
   ],
   environment:
@@ -46,7 +45,6 @@ local Converge(distro) = {
     steps: [
       Converge("debian10"),
       Converge("ubuntu1804"),
-      Converge("centos7"),
     ],
     volumes: [
       { name: "docker",
