@@ -47,7 +47,9 @@
     - {'name':'autofs', 'enabled':'yes', 'masked':'no', 'state':'started'}
   loop_control:
     loop_var: 'service'
-  when: ldap_domain.autofs_searchbase is defined
+  when:
+    - ldap_domain.autofs_searchbase is defined
+    - not ldap_disable_autofs
 
 - name: 'Configure NSS'
   lineinfile:
@@ -55,7 +57,9 @@
     line: 'automount:      files sss'
     regexp: '^automount'
     state: 'present'
-  when: ldap_domain.autofs_searchbase is defined
+  when:
+    - ldap_domain.autofs_searchbase is defined
+    - not ldap_disable_autofs
 
 - name: 'Configure services - OS-specific'
   systemd:

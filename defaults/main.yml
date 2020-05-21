@@ -2,6 +2,7 @@
 ###
 # Client settings
 ###
+ldap_disable_autofs: false      # You can use this to disable AutoFS for specific hosts/groups
 
 # Common settings for all domains
 ldap_sssd_homedir: '/home/%u'
