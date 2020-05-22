@@ -158,4 +158,3 @@
       description: 'LDAP readonly'
       userPassword: "{CRYPT}{{ ldap_readonly_password_hash.stdout }}"
       pwdPolicySubentry: "cn=passwordSystem,ou=policies,{{ ldap_domain['searchbase'] }}"
-
