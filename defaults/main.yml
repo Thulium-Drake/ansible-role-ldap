@@ -1,5 +1,14 @@
 ---
 ###
+# Server settings
+###
+ldap_admin_password: 'MySecretPassword'                             # Administrative password for the directory
+                                                                    # as well as cn=config
+ldap_ssl_certificate_key: '/etc/ssl/private/ssl-cert-snakeoil.key'  # SSL key to use
+ldap_ssl_certificate: '/etc/ssl/certs/ssl-cert-snakeoil.pem'        # SSL certificate to use
+#ldap_ssl_ca_certificate: '/etc/ssl/certs/ssl-cert-snakeoil.pem'    # Optional CA certificate to use
+
+###
 # Client settings
 ###
 ldap_disable_autofs: false      # You can use this to disable AutoFS for specific hosts/groups

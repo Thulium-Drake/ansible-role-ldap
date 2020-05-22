@@ -1,0 +1,155 @@
+---
+- name: 'Check installed packages'
+  package_facts:
+    manager: 'auto'
+
+- name: 'Abort if slapd is already installed'
+  fail:
+    msg: 'OpenLDAP is already configured on this system, aborting!'
+  when: "'slapd' in ansible_facts['packages']"
+
+- name: 'Preseed slapd installation'
+  debconf:
+    name: 'slapd'
+    question: "{{ slapd.question }}"
+    value: "{{ slapd.value }}"
+    vtype: "{{ slapd.vtype }}"
+  loop:
+    - question: 'slapd/password1'
+      value: 'password'
+      vtype: 'password'
+    - question: 'slapd/password2'
+      value: 'password'
+      vtype: 'password'
+    - question: 'slapd/domain'
+      value: "{{ ldap_domain.name }}"
+      vtype: 'string'
+  loop_control:
+    loop_var: 'slapd'
+
+- name: 'Install packages'
+  package:
+    name:
+      - 'ldap-utils'
+      - 'python3-ldap'
+      - 'slapd'
+      - 'whois'
+    state: 'present'
+
+- name: 'Enable services'
+  service:
+    name: 'slapd'
+    state: 'started'
+    enabled: true
+
+- name: 'Generate password hash'
+  shell: mkpasswd --rounds 500000 -m sha-512 --salt `head -c 40 /dev/random | base64 | sed -e 's/+/./g' |  cut -b 10-25` $PASSWORD
+  environment:
+    PASSWORD: "{{ ldap_admin_password }}"
+  register: 'ldap_admin_password_hash'
+
+- name: 'Set admin passwords'
+  ldap_attr:
+    server_uri: 'ldapi://'
+    dn: "{{ adminpw }}"
+    name: 'olcRootPW'
+    values: "{CRYPT}{{ ldap_admin_password_hash.stdout }}"
+    state: 'exact'
+  loop:
+    - 'olcDatabase={0}config,cn=config'
+    - 'olcDatabase={1}mdb,cn=config'
+  loop_control:
+    loop_var: 'adminpw'
+
+- name: 'Create SSL folder'
+  file:
+    path: '/etc/ldap/ssl'
+    state: 'directory'
+
+- name: 'Symlink certificate'
+  file:
+    dest: '/etc/ldap/ssl/slapd.{{ cert.file }}'
+    src: "{{ cert.src }}"
+    state: 'link'
+  loop:
+    - file: 'key'
+      src: "{{ ldap_ssl_certificate_key }}"
+    - file: 'crt'
+      src: "{{ ldap_ssl_certificate }}"
+  loop_control:
+    loop_var: 'cert'
+
+- name: 'Generate DH parameters'
+  openssl_dhparam:
+    path: '/etc/ldap/ssl/dhparams.pem'
+    size: '4096'
+
+- name: 'Set SSL Certificate'
+  community.general.ldap_attrs:
+    dn: 'cn=config'
+    state: 'exact'
+    attributes:
+      olcTLSCertificateKeyFile: '/etc/ldap/ssl/slapd.key'
+      olcTLSCertificateFile: '/etc/ldap/ssl/slapd.crt'
+
+- name: 'Set SSL CA Certificate'
+  community.general.ldap_attrs:
+    dn: 'cn=config'
+    state: 'exact'
+    attributes:
+      olcTLSCACertificateFile: "{{ ldap_ssl_ca_certificate }}"
+  when: ldap_ssl_ca_certificate is defined
+
+- name: 'Set SSL settings'
+  community.general.ldap_attrs:
+    dn: 'cn=config'
+    state: 'exact'
+    attributes:
+      olcTLSCipherSuite: 'PFS:!SHA1:!CURVE-SECP192R1:!CURVE-SECP224R1:!AES-256-CBC:!AES-128-GCM:!AES-128-CBC:!CAMELLIA-256-GCM:!CAMELLIA-256-CBC:!CAMELLIA-128-GCM:!CAMELLIA-128-CBC:!3DES-CBC:!VERS-TLS-ALL:+VERS-TLS1.2:%SERVER_PRECEDENCE'
+      olcTLSDHParamFile: '/etc/ldap/ssl/dhparams.pem'
+      olcSecurity: 'tls=1'
+
+- name: 'Set hardening settings'
+  community.general.ldap_attrs:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: 'cn=admin,cn=config'
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    state: 'exact'
+    dn: 'cn=config'
+    attributes:
+      olcRequires: 'authc'
+      olcPasswordHash: '{CRYPT}'
+      olcPasswordCryptSaltFormat: '$6$rounds=500000$%.16s'
+
+- name: 'Copy AutoFS schema'
+  copy:
+    src: 'autofs.ldif'
+    dest: '/etc/ldap/schema/autofs.ldif'
+
+- name: 'Load extra schemas'
+  shell: |
+    ldapmodify -ZZH ldap://localhost:389 -D "cn=admin,cn=config" -w $PASSWORD -a -f /etc/ldap/schema/ppolicy.ldif
+    ldapmodify -ZZH ldap://localhost:389 -D "cn=admin,cn=config" -w $PASSWORD -a -f /etc/ldap/schema/autofs.ldif
+  environment:
+    PASSWORD: "{{ ldap_admin_password }}"
+    LDAPTLS_REQCERT: 'never'
+
+- name: 'Enable LDAP modules'
+  ldap_entry:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: 'cn=admin,cn=config'
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    dn: 'cn=module,cn=config'
+    objectClass: 'olcModuleList'
+    attributes:
+      olcModuleLoad: "{{ ldapmodule }}"
+      olcModulePath: '/usr/lib/ldap'
+  loop:
+    - 'ppolicy'
+    - 'unique'
+  loop_control:
+    loop_var: 'ldapmodule'

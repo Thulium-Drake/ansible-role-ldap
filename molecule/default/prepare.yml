@@ -1,0 +1,11 @@
+---
+- name: 'Prepare'
+  hosts: 'all'
+  tasks:
+    - package:
+        name: 'ssl-cert'
+        state: 'present'
+    - name: 'Run role'
+      import_role:
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+        tasks_from: 'install_server.yml'
