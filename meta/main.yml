@@ -28,6 +28,4 @@ galaxy_info:
     - client
     - autofs
 
-dependencies:
-  collections:
-    - community.general
+dependencies: []
