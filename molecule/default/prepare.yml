@@ -9,3 +9,7 @@
       import_role:
         name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
         tasks_from: 'install_server.yml'
+    - name: 'Run role'
+      import_role:
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+        tasks_from: 'init_directory.yml'

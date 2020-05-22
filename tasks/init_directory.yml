@@ -1,2 +1,161 @@
 ---
+- name: 'Create organizational units'
+  ldap_entry:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    dn: "ou={{ ou }},{{ ldap_domain['searchbase'] }}"
+    objectClass: 'organizationalUnit'
+  loop:
+    - 'policies'
+    - 'users'
+    - 'groups'
+  loop_control:
+    loop_var: 'ou'
+
+- name: 'Add gidNext and uidNext objects'
+  ldap_entry:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    dn: "cn={{ object['name'] }},{{ ldap_domain['searchbase'] }}"
+    objectClass:
+      - 'organizationalRole'
+      - 'top'
+      - 'uidObject'
+    attributes:
+      uid: "{{ object['uid'] }}"
+  loop:
+    - name: 'gidNext'
+      uid: 50000
+    - name: 'uidNext'
+      uid: 20000
+  loop_control:
+    loop_var: 'object'
+
+- name: 'Enable ppolicy overlay for directory'
+  ldap_entry:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: 'cn=admin,cn=config'
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    dn: 'olcOverlay=ppolicy,olcDatabase={1}mdb,cn=config'
+    objectClass:
+      - 'olcOverlayConfig'
+      - 'olcPPolicyConfig'
+    attributes:
+      olcPPolicyDefault: "cn=passwordDefault,ou=policies,{{ ldap_domain['searchbase'] }}"
+      olcPPolicyHashCleartext: 'TRUE'
+      olcPPolicyUseLockout: 'FALSE'
+      olcPPolicyForwardUpdates: 'TRUE'
+
+- name: 'Enable unique overlay for directory'
+  ldap_entry:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: 'cn=admin,cn=config'
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    dn: 'olcOverlay=unique,olcDatabase={1}mdb,cn=config'
+    objectClass:
+      - 'olcOverlayConfig'
+      - 'olcUniqueConfig'
+    attributes:
+      olcUniqueUri:
+        - "ldap:///ou=users,{{ ldap_domain['searchbase'] }}?uid?sub"
+        - "ldap:///ou=users,{{ ldap_domain['searchbase'] }}?mail?sub"
+        - "ldap:///ou=users,{{ ldap_domain['searchbase'] }}?uidNumber?sub"
+        - "ldap:///ou=groups,{{ ldap_domain['searchbase'] }}?gidNumber?sub"
+        - "ldap:///ou=groups,{{ ldap_domain['searchbase'] }}?cn?sub"
+
+- name: 'Create passwordDefault policy for directory'
+  ldap_entry:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    dn: "cn=passwordDefault,ou=policies,{{ ldap_domain['searchbase'] }}"
+    objectClass:
+      - 'pwdPolicy'
+      - 'person'
+      - 'top'
+    attributes:
+      cn: 'passwordDefault'
+      sn: 'passwordDefault'
+      description: 'This is the default password policy used for all users'
+      pwdAttribute: 'userPassword'
+      pwdCheckQuality: "{{ ldap_pwdCheckQuality }}"
+      pwdMinAge: "{{ ldap_pwdMinAge }}"
+      pwdMaxAge: "{{ ldap_pwdMaxAge }}"
+      pwdMinLength: "{{ ldap_pwdMinLength }}"
+      pwdInHistory: "{{ ldap_pwdInHistory }}"
+      pwdMaxFailure: "{{ ldap_pwdMaxFailure }}"
+      pwdFailureCountInterval: "{{ ldap_pwdFailureCountInterval }}"
+      pwdLockout: "{{ ldap_pwdLockout }}"
+      pwdLockoutDuration: "{{ ldap_pwdLockoutDuration }}"
+      pwdAllowUserChange: "{{ ldap_pwdAllowUserChange }}"
+      pwdExpireWarning: "{{ ldap_pwdExpireWarning }}"
+      pwdGraceAuthNLimit: "{{ ldap_pwdGraceAuthNLimit }}"
+      pwdMustChange: "{{ ldap_pwdMustChange }}"
+      pwdSafeModify: "{{ ldap_pwdSafeModify }}"
+
+- name: 'Create passwordSystem policy for directory'
+  ldap_entry:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    dn: "cn=passworSystem,ou=policies,{{ ldap_domain['searchbase'] }}"
+    objectClass:
+      - 'pwdPolicy'
+      - 'person'
+      - 'top'
+    attributes:
+      cn: 'passworSystem'
+      sn: 'passworSystem'
+      description: 'This is the default password policy used for all users'
+      pwdAttribute: 'userPassword'
+      pwdCheckQuality: 0
+      pwdMinAge: 0
+      pwdMaxAge: 0
+      pwdMinLength: 8
+      pwdInHistory: 0
+      pwdMaxFailure: 0
+      pwdFailureCountInterval: 0
+      pwdLockout: 'FALSE'
+      pwdLockoutDuration: 0
+      pwdAllowUserChange: 'FALSE'
+      pwdExpireWarning: 0
+      pwdGraceAuthNLimit: 0
+      pwdMustChange: 'FALSE'
+      pwdSafeModify: 'TRUE'
+
+- name: 'Create hash for readonly object'
+  shell: mkpasswd --rounds 500000 -m sha-512 --salt `head -c 40 /dev/random | base64 | sed -e 's/+/./g' |  cut -b 10-25` $PASSWORD
+  environment:
+    PASSWORD: "{{ ldap_domain['bind_password'] }}"
+  register: 'ldap_readonly_password_hash'
+
+- name: 'Add readonly object'
+  ldap_entry:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    dn: "cn=readonly,{{ ldap_domain['searchbase'] }}"
+    objectClass:
+      - 'simpleSecurityObject'
+      - 'organizationalRole'
+    attributes:
+      description: 'LDAP readonly'
+      userPassword: "{CRYPT}{{ ldap_readonly_password_hash.stdout }}"
+      pwdPolicySubentry: "cn=passwordSystem,ou=policies,{{ ldap_domain['searchbase'] }}"
 

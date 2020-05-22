@@ -22,7 +22,7 @@
       value: 'password'
       vtype: 'password'
     - question: 'slapd/domain'
-      value: "{{ ldap_domain.name }}"
+      value: "{{ ldap_domain['name'] }}"
       vtype: 'string'
   loop_control:
     loop_var: 'slapd'

@@ -8,6 +8,23 @@ ldap_ssl_certificate_key: '/etc/ssl/private/ssl-cert-snakeoil.key'  # SSL key to
 ldap_ssl_certificate: '/etc/ssl/certs/ssl-cert-snakeoil.pem'        # SSL certificate to use
 #ldap_ssl_ca_certificate: '/etc/ssl/certs/ssl-cert-snakeoil.pem'    # Optional CA certificate to use
 
+# Password policy settings, for more details, see https://www.zytrax.com/books/ldap/ch6/ppolicy.html
+# Note that boolean values must be in quoted CAPS
+ldap_pwdCheckQuality: 1           # Check the password's quality
+ldap_pwdMinAge: 0                 # Minimum lifetime of hte password
+ldap_pwdMaxAge: 0                 # Expiration time of the password
+ldap_pwdMinLength: 8              # Minimum length of the password
+ldap_pwdInHistory: 0              # Amount of password saved in the history
+ldap_pwdMaxFailure: 0             # Amount of allowed attempts to log on
+ldap_pwdFailureCountInterval: 0   # How long must be between each attempt to count
+ldap_pwdLockout: 'TRUE'           # Lock accounts after the failure count is reached
+ldap_pwdLockoutDuration: 0        # Duration in seconds of a lock out
+ldap_pwdAllowUserChange: 'TRUE'   # Allow users to change their own password
+ldap_pwdExpireWarning: 0          # Warn user X seconds before their password expires
+ldap_pwdGraceAuthNLimit: 0        # Amount of logins _after_ the password has expired
+ldap_pwdMustChange: 'TRUE'        # Enable forced changing of passwords
+ldap_pwdSafeModify: 'TRUE'        # Require users to submit their current password _before_ updating it
+
 ###
 # Client settings
 ###
