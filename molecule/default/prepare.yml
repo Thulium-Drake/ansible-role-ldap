@@ -13,6 +13,10 @@
         groups:
           - 'ssl-cert'
 
+    - name: 'Override DH params size for test'
+      set_fact:
+        ldap_dhparams_size: 1024
+
     - name: 'Run role'
       import_role:
         name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"

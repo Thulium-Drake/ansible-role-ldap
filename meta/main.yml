@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Jeffrey van Pelt
-  description: LDAP authentication (client)
+  description: LDAP authentication (client and server)
   company:
   role_name: ldap
 
@@ -26,6 +26,8 @@ galaxy_info:
     - pam
     - sssd
     - client
+    - server
+    - sudo
     - autofs
 
 dependencies: []

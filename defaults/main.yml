@@ -6,6 +6,7 @@ ldap_admin_password: 'MySecretPassword'                             # Administra
                                                                     # as well as cn=config
 ldap_ssl_certificate_key: '/etc/ssl/private/ssl-cert-snakeoil.key'  # SSL key to use
 ldap_ssl_certificate: '/etc/ssl/certs/ssl-cert-snakeoil.pem'        # SSL certificate to use
+ldap_dhparams_size: 4096                                            # Size of the DH params key
 #ldap_ssl_ca_certificate: '/etc/ssl/certs/ssl-cert-snakeoil.pem'    # Optional CA certificate to use
 
 # Password policy settings, for more details, see https://www.zytrax.com/books/ldap/ch6/ppolicy.html
