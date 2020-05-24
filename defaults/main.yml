@@ -44,8 +44,8 @@ ldap_domain:
   enumerate: false                                            # Enumerate the whole directory for searches
   linux_admins: 'netsudo'                                     #* Group to configure sudo for, if defined
   starttls: true                                              #* Use STARTTLS or not (note: LDAPS is not supported)
-  cacert: '/etc/ssl/certs/cacert.pem'                         #* LDAP server root CA certificate
-  reqcert: 'demand'                                           #* Require certfificate for LDAP connections
+  cacert: '/etc/ssl/certs/ssl-cert-snakeoil.pem'              #* LDAP server root CA certificate
+  reqcert: 'never'                                            #* Require certfificate for LDAP connections
   cache_credentials: true                                     #* Cache credentials
   cache_credentials_expiration: 0                             #* Time to cache credentials, 0 means forever
   bind_dn: 'cn=readonly,dc=example,dc=com'                    #* Username for read access to the directory

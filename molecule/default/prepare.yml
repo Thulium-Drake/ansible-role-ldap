@@ -2,14 +2,66 @@
 - name: 'Prepare'
   hosts: 'all'
   tasks:
-    - package:
+    - name: 'Install snakeoil SSL certificate'
+      package:
         name: 'ssl-cert'
         state: 'present'
+
+    - name: 'Add openldap user to ssl-cert group'
+      user:
+        name: 'openldap'
+        groups:
+          - 'ssl-cert'
+
     - name: 'Run role'
       import_role:
         name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
         tasks_from: 'install_server.yml'
+
     - name: 'Run role'
       import_role:
         name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
         tasks_from: 'init_directory.yml'
+
+    - name: 'Add test user'
+      ldap_entry:
+        server_uri: 'ldap://localhost'
+        start_tls: true
+        bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
+        bind_pw: "{{ ldap_admin_password }}"
+        validate_certs: false
+        dn: "uid=ldapuser,ou=users,{{ ldap_domain['searchbase'] }}"
+        objectClass:
+          - 'top'
+          - 'posixAccount'
+          - 'shadowAccount'
+          - 'inetOrgPerson'
+          - 'organizationalPerson'
+        attributes:
+          cn: 'LDAP User'
+          sn: 'User'
+          loginShell: '/bin/bash'
+          gidNumber: 20041
+          uidNumber: 20041
+          homeDirectory: '/home/ldapuser'
+          userPassword: 'password'
+
+    - name: 'Add test user to sudo group'
+      ldap_attr:
+        server_uri: 'ldap://localhost'
+        start_tls: true
+        bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
+        bind_pw: "{{ ldap_admin_password }}"
+        validate_certs: false
+        state: 'exact'
+        dn: "cn={{ ldap_domain['linux_admins'] }},ou=groups,{{ ldap_domain['searchbase'] }}"
+        name: 'memberUid'
+        values:
+          - 'ldapuser'
+
+    - name: 'Add ldap servers to hosts file'
+      lineinfile:
+        path: '/etc/hosts'
+        line: '127.0.0.1 ldap1.example.com ldap2.example.com'
+        state: 'present'
+        unsafe_writes: true

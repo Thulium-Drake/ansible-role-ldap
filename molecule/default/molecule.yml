@@ -8,6 +8,7 @@ driver:
 lint: |
   set -e
   yamllint -c molecule/default/yamllint.yml .
+  ansible-lint molecule/default/prepare.yml
   ansible-lint molecule/default/converge.yml
 platforms:
   - name: "molecule-ldap"

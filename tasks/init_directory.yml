@@ -31,7 +31,7 @@
       uid: "{{ object['uid'] }}"
   loop:
     - name: 'gidNext'
-      uid: 50000
+      uid: 50001
     - name: 'uidNext'
       uid: 20000
   loop_control:
@@ -158,3 +158,18 @@
       description: 'LDAP readonly'
       userPassword: "{CRYPT}{{ ldap_readonly_password_hash.stdout }}"
       pwdPolicySubentry: "cn=passwordSystem,ou=policies,{{ ldap_domain['searchbase'] }}"
+
+- name: 'Add linux admin group'
+  ldap_entry:
+    server_uri: 'ldap://localhost'
+    start_tls: true
+    bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    validate_certs: false
+    dn: "cn={{ ldap_domain['linux_admins'] }},ou=groups,{{ ldap_domain['searchbase'] }}"
+    objectClass:
+      - 'posixGroup'
+      - 'top'
+    attributes:
+      description: 'Linux sudo users'
+      gidNumber: 50000

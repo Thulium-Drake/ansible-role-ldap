@@ -33,9 +33,20 @@
     state: "{{ service.state }}"
   loop:
     - {'name':'sssd', 'enabled':'yes', 'masked':'no', 'state':'started'}
+  loop_control:
+    loop_var: 'service'
+
+- name: 'Disable service - systemd-logind if installed'
+  systemd:
+    name: "{{ service.name }}"
+    enabled: "{{ service.enabled }}"
+    masked: "{{ service.masked }}"
+    state: "{{ service.state }}"
+  loop:
     - {'name':'systemd-logind', 'enabled':'no', 'masked':'yes', 'state':'stopped'}
   loop_control:
     loop_var: 'service'
+  ignore_errors: true
 
 - name: 'Enable services - AutoFS'
   systemd:
