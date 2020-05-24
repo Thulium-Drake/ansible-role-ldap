@@ -2,6 +2,16 @@
 - name: 'Prepare'
   hosts: 'all'
   tasks:
+    - name: 'Update APT cache'
+      apt:
+        update_cache: true
+      when: ansible_facts['os_family'] == 'Debian'
+
+    - name: 'Update YUM cache'
+      yum:
+        update_cache: true
+      when: ansible_facts['os_family'] == 'RedHat'
+
     - name: 'Install openssl'
       package:
         name: 'openssl'
