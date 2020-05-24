@@ -82,7 +82,7 @@
 - name: 'Generate DH parameters'
   openssl_dhparam:
     path: '/etc/ldap/ssl/dhparams.pem'
-    size: '4096'
+    size: "{{ ldap_dhparams_size }}"
 
 - name: 'Set SSL Certificate'
   community.general.ldap_attrs:

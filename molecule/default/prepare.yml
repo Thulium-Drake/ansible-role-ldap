@@ -2,16 +2,40 @@
 - name: 'Prepare'
   hosts: 'all'
   tasks:
-    - name: 'Install snakeoil SSL certificate'
+    - name: 'Install openssl'
       package:
-        name: 'ssl-cert'
+        name: 'openssl'
         state: 'present'
 
-    - name: 'Add openldap user to ssl-cert group'
-      user:
-        name: 'openldap'
-        groups:
-          - 'ssl-cert'
+    - name: 'Ensure SSL directories'
+      file:
+        path: "/etc/ssl/{{ dir }}"
+        state: 'directory'
+        mode: 0775
+      loop:
+        - 'certs'
+        - 'private'
+      loop_control:
+        loop_var: 'dir'
+
+    - name: 'Generate selfsigned SSL key'
+      openssl_privatekey:
+        path: '/etc/ssl/private/ssl-cert-snakeoil.key'
+        mode: 0644
+        size: 2048
+
+    - name: 'Generate selfsigned SSL CSR'
+      openssl_csr:
+        path: '/etc/ssl/certs/ssl-cert-snakeoil.csr'
+        privatekey_path: '/etc/ssl/private/ssl-cert-snakeoil.key'
+        common_name: 'ldap1.example.com'
+
+    - name: 'Generate selfsigned SSL cert'
+      openssl_certificate:
+        csr_path: '/etc/ssl/certs/ssl-cert-snakeoil.csr'
+        path: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
+        privatekey_path: '/etc/ssl/private/ssl-cert-snakeoil.key'
+        provider: 'selfsigned'
 
     - name: 'Override DH params size for test'
       set_fact:
