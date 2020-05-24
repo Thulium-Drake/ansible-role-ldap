@@ -20,6 +20,14 @@ default permissions given to this group is:
 ALL=(ALL) ALL:NOPASSWD
 ```
 
+## Server
+This role can also be used to install an LDAP server on Debian 10. Ubuntu 18.04,
+20.04 and CentOS 7, 8 are not supported.
+
+The server installation comes with decent SSL and LDAP hardening settings.
+
+The client part of this role is compatible and can be used right away.
+
 ## Usage
 * Install the role (either from Galaxy or directly from GitHub)
 * Copy the defaults file to your inventory (or wherever you store them) and
