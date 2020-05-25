@@ -30,6 +30,7 @@ ldap_pwdSafeModify: 'TRUE'        # Require users to submit their current passwo
 # Client settings
 ###
 ldap_disable_autofs: false      # You can use this to disable AutoFS for specific hosts/groups
+ldap_disable_logind: false      # You can use this to disable systemd-logind for specific hosts/groups
 
 # Common settings for all domains
 ldap_sssd_homedir: '/home/%u'
