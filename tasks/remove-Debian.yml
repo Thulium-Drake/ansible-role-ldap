@@ -4,6 +4,8 @@
     name: "{{ packages }}"
     state: 'absent'
     autoremove: true
+  environment:
+    SUDO_FORCE_REMOVE: 'yes'
 
 - name: 'Remove autofs packages'
   apt:
