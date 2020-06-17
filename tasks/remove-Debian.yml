@@ -1,0 +1,20 @@
+---
+- name: 'Remove packages'
+  apt:
+    name: "{{ packages }}"
+    state: 'absent'
+    autoremove: true
+
+- name: 'Remove autofs packages'
+  apt:
+    name: "{{ autofs_packages }}"
+    state: 'absent'
+  when:
+    - ldap_domain.autofs_searchbase is defined
+    - not ldap_disable_autofs
+
+- name: 'Remove PAM config'
+  file:
+    path: '/usr/share/pam-configs/ldaphomedir'
+    state: 'absent'
+  notify: 'reconfigure debian pam'
