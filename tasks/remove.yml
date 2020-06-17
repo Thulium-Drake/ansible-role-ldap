@@ -15,9 +15,6 @@
     - {src: 'sssd.conf.j2', mode: '0600', dest: '/etc/sssd/sssd.conf'}
   loop_control:
     loop_var: 'conffile'
-  notify:
-    - reconfigure redhat pam
-    - reconfigure debian pam
 
 - name: 'Configure NSS'
   lineinfile:
