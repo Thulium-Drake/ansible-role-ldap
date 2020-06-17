@@ -40,3 +40,5 @@ The client part of this role is compatible and can be used right away.
 ## Removing client configuration
 If in some case you wish to remove the LDAP configuration from a system, you can run the remove.yml
 tasks in order to reverse the effects of this role.
+
+__If you run this role to remove LDAP configs, make SURE you have a means to log in as root without sudo__
