@@ -1,10 +1,10 @@
 ---
 - name: 'Include OS specific vars'
-  include_vars: "{{ ansible_os_family }}.yml"
+  include_vars: "{{ ansible_facts['os_family'] }}.yml"
   no_log: true
 
 - name: 'Remove packages'
-  include_tasks: "remove-{{ ansible_os_family }}.yml"
+  include_tasks: "remove-{{ ansible_facts['os_family'] }}.yml"
 
 - name: 'Configure services'
   file:
