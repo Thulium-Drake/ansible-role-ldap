@@ -31,8 +31,12 @@
     - name: 'Generate selfsigned SSL key'
       community.crypto.openssl_privatekey:
         path: '/etc/ssl/private/ssl-cert-snakeoil.key'
-        mode: 0644
         size: 2048
+
+    - name: 'Ensure selfsigned SSL key permissions'
+      file:
+        path: '/etc/ssl/private/ssl-cert-snakeoil.key'
+        mode: 0644
 
     - name: 'Generate selfsigned SSL CSR'
       community.crypto.openssl_csr:
@@ -41,7 +45,7 @@
         common_name: 'ldap1.example.com'
 
     - name: 'Generate selfsigned SSL cert'
-      ocommunity.crypto.penssl_certificate:
+      community.crypto.openssl_certificate:
         csr_path: '/etc/ssl/certs/ssl-cert-snakeoil.csr'
         path: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
         privatekey_path: '/etc/ssl/private/ssl-cert-snakeoil.key'
