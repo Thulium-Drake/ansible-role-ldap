@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Jeffrey van Pelt
+  author: thulium_drake
   description: LDAP authentication (client and server)
   company:
   role_name: ldap
