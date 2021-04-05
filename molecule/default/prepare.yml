@@ -45,7 +45,7 @@
         common_name: 'ldap1.example.com'
 
     - name: 'Generate selfsigned SSL cert'
-      community.crypto.openssl_certificate:
+      community.crypto.x509_certificate:
         csr_path: '/etc/ssl/certs/ssl-cert-snakeoil.csr'
         path: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
         privatekey_path: '/etc/ssl/private/ssl-cert-snakeoil.key'
@@ -56,12 +56,12 @@
         ldap_dhparams_size: 1024
 
     - name: 'Run role'
-      import_role:
+      include_role:
         name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
         tasks_from: 'install_server.yml'
 
     - name: 'Run role'
-      import_role:
+      include_role:
         name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
         tasks_from: 'init_directory.yml'
 
