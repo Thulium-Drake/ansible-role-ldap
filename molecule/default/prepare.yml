@@ -1,6 +1,9 @@
 ---
 - name: 'Prepare'
   hosts: 'all'
+  vars_files:
+    - "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+
   tasks:
     - name: 'Update APT cache'
       apt:
