@@ -49,7 +49,7 @@
   register: 'ldap_admin_password_hash'
 
 - name: 'Set admin passwords'
-  community.general.ldap_attr:
+  community.general.ldap_attrs:
     server_uri: 'ldapi://'
     dn: "{{ adminpw }}"
     name: 'olcRootPW'
