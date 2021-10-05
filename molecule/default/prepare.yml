@@ -92,7 +92,7 @@
           userPassword: 'password'
 
     - name: 'Add test user to sudo group'
-      community.general.ldap_attr:
+      community.general.ldap_attrs:
         server_uri: 'ldap://localhost'
         start_tls: true
         bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
@@ -100,9 +100,9 @@
         validate_certs: false
         state: 'exact'
         dn: "cn={{ ldap_domain['linux_admins'] }},ou=groups,{{ ldap_domain['searchbase'] }}"
-        name: 'memberUid'
-        values:
-          - 'ldapuser'
+        attributes:
+          memberUid:
+            - 'ldapuser'
 
     - name: 'Add ldap servers to hosts file'
       lineinfile:

@@ -52,8 +52,8 @@
   community.general.ldap_attrs:
     server_uri: 'ldapi://'
     dn: "{{ adminpw }}"
-    name: 'olcRootPW'
-    values: "{CRYPT}{{ ldap_admin_password_hash.stdout }}"
+    attributes:
+      olcRootPW: "{CRYPT}{{ ldap_admin_password_hash.stdout }}"
     state: 'exact'
   loop:
     - 'olcDatabase={0}config,cn=config'
