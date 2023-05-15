@@ -5,11 +5,6 @@ dependency:
     requirements-file: 'requirements.yml'
 driver:
   name: ${DRIVER_NAME:-docker}
-lint:
-  set -e
-  yamllint -c molecule/default/yamllint.yml .
-  ansible-lint molecule/default/prepare.yml
-  ansible-lint molecule/default/converge.yml
 platforms:
   - name: "molecule-ldap"
     image: "geerlingguy/docker-${MOLECULE_DISTRO:-debian10}-ansible:latest"
