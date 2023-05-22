@@ -1,12 +1,12 @@
 ---
 - name: 'Remove packages'
-  yum:
+  ansible.builtin.yum:
     name: "{{ packages }}"
     state: 'absent'
     autoremove: true
 
 - name: 'Remove autofs packages'
-  yum:
+  ansible.builtin.yum:
     name: "{{ autofs_packages }}"
     state: 'absent'
   when:

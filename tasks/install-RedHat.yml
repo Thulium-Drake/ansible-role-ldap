@@ -1,12 +1,12 @@
 ---
 - name: 'Install packages'
-  yum:
+  ansible.builtin.yum:
     name: "{{ packages }}"
     state: 'present'
     update_cache: true
 
 - name: 'Install autofs packages'
-  yum:
+  ansible.builtin.yum:
     name: "{{ autofs_packages }}"
     state: 'present'
   when:

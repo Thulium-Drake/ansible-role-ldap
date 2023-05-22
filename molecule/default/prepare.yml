@@ -6,25 +6,25 @@
 
   tasks:
     - name: 'Update APT cache'
-      apt:
+      ansible.builtin.apt:
         update_cache: true
       when: ansible_facts['os_family'] == 'Debian'
 
     - name: 'Update YUM cache'
-      yum:
+      ansible.builtin.yum:
         update_cache: true
       when: ansible_facts['os_family'] == 'RedHat'
 
     - name: 'Install openssl'
-      package:
+      ansible.builtin.package:
         name: 'openssl'
         state: 'present'
 
     - name: 'Ensure SSL directories'
-      file:
+      ansible.builtin.file:
         path: "/etc/ssl/{{ dir }}"
         state: 'directory'
-        mode: 0775
+        mode: '0775'
       loop:
         - 'certs'
         - 'private'
@@ -37,9 +37,9 @@
         size: 2048
 
     - name: 'Ensure selfsigned SSL key permissions'
-      file:
+      ansible.builtin.file:
         path: '/etc/ssl/private/ssl-cert-snakeoil.key'
-        mode: 0644
+        mode: '0644'
 
     - name: 'Generate selfsigned SSL CSR'
       community.crypto.openssl_csr:
@@ -55,16 +55,16 @@
         provider: 'selfsigned'
 
     - name: 'Override DH params size for test'
-      set_fact:
+      ansible.builtin.set_fact:
         ldap_dhparams_size: 1024
 
     - name: 'Run role'
-      include_role:
+      ansible.builtin.include_role:
         name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
         tasks_from: 'install_server.yml'
 
     - name: 'Run role'
-      include_role:
+      ansible.builtin.include_role:
         name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
         tasks_from: 'init_directory.yml'
 
@@ -105,7 +105,7 @@
             - 'ldapuser'
 
     - name: 'Add ldap servers to hosts file'
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: '/etc/hosts'
         line: '127.0.0.1 ldap1.example.com ldap2.example.com'
         state: 'present'

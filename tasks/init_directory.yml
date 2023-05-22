@@ -1,6 +1,6 @@
 ---
 - name: 'Create organizational units'
-  ldap_entry:
+  community.general.ldap_entry:
     server_uri: 'ldap://localhost'
     start_tls: true
     bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
@@ -16,7 +16,7 @@
     loop_var: 'ou'
 
 - name: 'Add gidNext and uidNext objects'
-  ldap_entry:
+  community.general.ldap_entry:
     server_uri: 'ldap://localhost'
     start_tls: true
     bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
@@ -38,7 +38,7 @@
     loop_var: 'object'
 
 - name: 'Enable ppolicy overlay for directory'
-  ldap_entry:
+  community.general.ldap_entry:
     server_uri: 'ldap://localhost'
     start_tls: true
     bind_dn: 'cn=admin,cn=config'
@@ -55,7 +55,7 @@
       olcPPolicyForwardUpdates: 'TRUE'
 
 - name: 'Enable unique overlay for directory'
-  ldap_entry:
+  community.general.ldap_entry:
     server_uri: 'ldap://localhost'
     start_tls: true
     bind_dn: 'cn=admin,cn=config'
@@ -74,7 +74,7 @@
         - "ldap:///ou=groups,{{ ldap_domain['searchbase'] }}?cn?sub"
 
 - name: 'Create passwordDefault policy for directory'
-  ldap_entry:
+  community.general.ldap_entry:
     server_uri: 'ldap://localhost'
     start_tls: true
     bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
@@ -106,7 +106,7 @@
       pwdSafeModify: "{{ ldap_pwdSafeModify }}"
 
 - name: 'Create passwordSystem policy for directory'
-  ldap_entry:
+  community.general.ldap_entry:
     server_uri: 'ldap://localhost'
     start_tls: true
     bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
@@ -138,13 +138,16 @@
       pwdSafeModify: 'TRUE'
 
 - name: 'Create hash for readonly object'
-  shell: mkpasswd --rounds 500000 -m sha-512 --salt `head -c 40 /dev/random | base64 | sed -e 's/+/./g' |  cut -b 10-25` $PASSWORD
+  ansible.builtin.shell: |
+    set -o pipefail
+    mkpasswd --rounds 500000 -m sha-512 --salt `head -c 40 /dev/random | base64 | sed -e 's/+/./g' |  cut -b 10-25` $PASSWORD
   environment:
     PASSWORD: "{{ ldap_domain['bind_password'] }}"
+  changed_when: false
   register: 'ldap_readonly_password_hash'
 
 - name: 'Add readonly object'
-  ldap_entry:
+  community.general.ldap_entry:
     server_uri: 'ldap://localhost'
     start_tls: true
     bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"
@@ -160,7 +163,7 @@
       pwdPolicySubentry: "cn=passwordSystem,ou=policies,{{ ldap_domain['searchbase'] }}"
 
 - name: 'Add linux admin group'
-  ldap_entry:
+  community.general.ldap_entry:
     server_uri: 'ldap://localhost'
     start_tls: true
     bind_dn: "cn=admin,{{ ldap_domain['searchbase'] }}"

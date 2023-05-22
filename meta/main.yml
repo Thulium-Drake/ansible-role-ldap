@@ -2,23 +2,24 @@
 galaxy_info:
   author: thulium_drake
   description: LDAP authentication (client and server)
-  company:
   role_name: ldap
 
   license: GPLv3
 
-  min_ansible_version: 2.9
+  min_ansible_version: '2.10'
 
   platforms:
     - name: Debian
       versions:
         - buster
+        - bullseye
     - name: Ubuntu
       versions:
         - focal
     - name: EL
       versions:
-        - 7
+        - '7'
+        - '8'
 
   galaxy_tags:
     - ldap

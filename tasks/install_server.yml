@@ -1,15 +1,15 @@
 ---
 - name: 'Check installed packages'
-  package_facts:
+  ansible.builtin.package_facts:
     manager: 'auto'
 
 - name: 'Abort if slapd is already installed'
-  fail:
+  ansible.builtin.fail:
     msg: 'OpenLDAP is already configured on this system, aborting!'
   when: "'slapd' in ansible_facts['packages']"
 
 - name: 'Preseed slapd installation'
-  debconf:
+  ansible.builtin.debconf:
     name: 'slapd'
     question: "{{ slapd.question }}"
     value: "{{ slapd.value }}"
@@ -28,7 +28,7 @@
     loop_var: 'slapd'
 
 - name: 'Install packages'
-  package:
+  ansible.builtin.package:
     name:
       - 'ldap-utils'
       - 'python3-ldap'
@@ -37,15 +37,18 @@
     state: 'present'
 
 - name: 'Enable services'
-  service:
+  ansible.builtin.service:
     name: 'slapd'
     state: 'started'
     enabled: true
 
 - name: 'Generate password hash'
-  shell: mkpasswd --rounds 500000 -m sha-512 --salt `head -c 40 /dev/random | base64 | sed -e 's/+/./g' |  cut -b 10-25` $PASSWORD
+  ansible.builtin.shell: |
+    set -o pipefail
+    mkpasswd --rounds 500000 -m sha-512 --salt `head -c 40 /dev/random | base64 | sed -e 's/+/./g' |  cut -b 10-25` $PASSWORD
   environment:
     PASSWORD: "{{ ldap_admin_password }}"
+  changed_when: false
   register: 'ldap_admin_password_hash'
 
 - name: 'Set admin passwords'
@@ -62,12 +65,15 @@
     loop_var: 'adminpw'
 
 - name: 'Create SSL folder'
-  file:
+  ansible.builtin.file:
     path: '/etc/ldap/ssl'
     state: 'directory'
+    owner: 'openldap'
+    group: 'openldap'
+    mode: 0750'
 
 - name: 'Symlink certificate'
-  file:
+  ansible.builtin.file:
     dest: '/etc/ldap/ssl/slapd.{{ cert.file }}'
     src: "{{ cert.src }}"
     state: 'link'
@@ -100,7 +106,7 @@
       olcTLSCACertificateFile: "{{ ldap_ssl_ca_certificate }}"
   when: ldap_ssl_ca_certificate is defined
 
-- name: 'Set SSL settings'
+- name: 'Set SSL settings'  # yamllint disable rule:line-length
   community.general.ldap_attrs:
     dn: 'cn=config'
     state: 'exact'
@@ -124,17 +130,21 @@
       olcPasswordCryptSaltFormat: '$6$rounds=500000$%.16s'
 
 - name: 'Copy AutoFS schema'
-  copy:
+  ansible.builtin.copy:
     src: 'autofs.ldif'
     dest: '/etc/ldap/schema/autofs.ldif'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
 
 - name: 'Load extra schemas'
-  shell: |
+  ansible.builtin.shell: |
     ldapmodify -ZZH ldap://localhost:389 -D "cn=admin,cn=config" -w $PASSWORD -a -f /etc/ldap/schema/ppolicy.ldif
     ldapmodify -ZZH ldap://localhost:389 -D "cn=admin,cn=config" -w $PASSWORD -a -f /etc/ldap/schema/autofs.ldif
   environment:
     PASSWORD: "{{ ldap_admin_password }}"
     LDAPTLS_REQCERT: 'never'
+  changed_when: true
 
 - name: 'Enable LDAP modules'
   community.general.ldap_entry:

@@ -1,6 +1,6 @@
 ---
 - name: 'Remove packages'
-  apt:
+  ansible.builtin.apt:
     name: "{{ packages }}"
     state: 'absent'
     autoremove: true
@@ -8,7 +8,7 @@
     SUDO_FORCE_REMOVE: 'yes'
 
 - name: 'Remove autofs packages'
-  apt:
+  ansible.builtin.apt:
     name: "{{ autofs_packages }}"
     state: 'absent'
   when:
@@ -16,7 +16,7 @@
     - not ldap_disable_autofs
 
 - name: 'Remove PAM config'
-  file:
+  ansible.builtin.file:
     path: '/usr/share/pam-configs/ldaphomedir'
     state: 'absent'
-  notify: 'reconfigure debian pam'
+  notify: 'Reconfigure debian pam'

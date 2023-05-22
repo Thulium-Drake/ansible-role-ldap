@@ -1,13 +1,13 @@
 ---
 - name: 'Include OS specific vars'
-  include_vars: "{{ ansible_facts['os_family'] }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
   no_log: true
 
 - name: 'Install packages'
-  include_tasks: "install-{{ ansible_facts['os_family'] }}.yml"
+  ansible.builtin.include_tasks: "install-{{ ansible_facts['os_family'] }}.yml"
 
 - name: 'Configure services'
-  template:
+  ansible.builtin.template:
     dest: "{{ conffile.dest }}"
     src: "{{ conffile.src }}"
     mode: "{{ conffile.mode }}"
@@ -26,7 +26,7 @@
     - clear sssd cache
 
 - name: 'Enable services - Common'
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ service.name }}"
     enabled: "{{ service.enabled }}"
     masked: "{{ service.masked }}"
@@ -37,7 +37,7 @@
     loop_var: 'service'
 
 - name: 'Disable service - systemd-logind if installed'
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ service.name }}"
     enabled: "{{ service.enabled }}"
     masked: "{{ service.masked }}"
@@ -46,11 +46,11 @@
     - {'name':'systemd-logind', 'enabled':'no', 'masked':'yes', 'state':'stopped'}
   loop_control:
     loop_var: 'service'
-  ignore_errors: true
+  failed_when: false
   when: not ldap_disable_logind
 
 - name: 'Enable services - AutoFS'
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ service.name }}"
     enabled: "{{ service.enabled }}"
     masked: "{{ service.masked }}"
@@ -64,7 +64,7 @@
     - not ldap_disable_autofs
 
 - name: 'Configure NSS'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: '/etc/nsswitch.conf'
     line: 'automount:      files sss'
     regexp: '^automount'
@@ -74,7 +74,7 @@
     - not ldap_disable_autofs
 
 - name: 'Configure services - OS-specific'
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ service.name }}"
     enabled: "{{ service.enabled }}"
     masked: "{{ service.masked }}"
@@ -85,10 +85,10 @@
   when: os_specific_services is defined
 
 - name: 'Configure Sudo permissions for admin users'
-  template:
+  ansible.builtin.template:
     src: 'sudoers_10_linux_admins.j2'
     dest: '/etc/sudoers.d/10_linux_admins'
-    mode: 0440
+    mode: '0440'
     validate: 'visudo -cf %s'
     owner: 'root'
     group: 'root'

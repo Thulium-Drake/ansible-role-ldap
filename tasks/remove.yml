@@ -1,13 +1,13 @@
 ---
 - name: 'Include OS specific vars'
-  include_vars: "{{ ansible_facts['os_family'] }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
   no_log: true
 
 - name: 'Remove packages'
-  include_tasks: "remove-{{ ansible_facts['os_family'] }}.yml"
+  ansible.builtin.include_tasks: "remove-{{ ansible_facts['os_family'] }}.yml"
 
 - name: 'Configure services'
-  file:
+  ansible.builtin.file:
     path: "{{ conffile.dest }}"
     state: 'absent'
   loop:
@@ -17,7 +17,7 @@
     loop_var: 'conffile'
 
 - name: 'Configure NSS'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: '/etc/nsswitch.conf'
     line: 'automount:      files sss'
     regexp: '^automount'
@@ -27,7 +27,7 @@
     - not ldap_disable_autofs
 
 - name: 'Configure Sudo permissions for admin users'
-  file:
+  ansible.builtin.file:
     path: '/etc/sudoers.d/10_linux_admins'
     state: 'absent'
   when: ldap_domain.linux_admins is defined
