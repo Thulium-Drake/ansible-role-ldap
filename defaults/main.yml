@@ -7,7 +7,8 @@ ldap_admin_password: 'MySecretPassword'                             # Administra
 ldap_ssl_certificate_key: '/etc/ssl/private/ssl-cert-snakeoil.key'  # SSL key to use
 ldap_ssl_certificate: '/etc/ssl/certs/ssl-cert-snakeoil.pem'        # SSL certificate to use
 ldap_dhparams_size: 4096                                            # Size of the DH params key
-# ldap_ssl_ca_certificate: '/etc/ssl/certs/ssl-cert-snakeoil.pem'   # Optional CA certificate to use
+# Optional CA certificate to use
+# ldap_ssl_ca_certificate: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
 
 # Password policy settings, for more details, see https://www.zytrax.com/books/ldap/ch6/ppolicy.html
 # Note that boolean values must be in quoted CAPS
@@ -44,12 +45,12 @@ ldap_domain:
     - 'ldap1.example.com'
     - 'ldap2.example.com'
   enumerate: false                                            # Enumerate the whole directory for searches
-  linux_admins: 'netsudo'                                     # * Group to configure sudo for, if defined
-  starttls: true                                              # * Use STARTTLS or not (note: LDAPS is not supported)
-  cacert: '/etc/ssl/certs/ssl-cert-snakeoil.pem'              # * LDAP server root CA certificate
-  reqcert: 'never'                                            # * Require certfificate for LDAP connections
-  cache_credentials: true                                     # * Cache credentials
-  cache_credentials_expiration: 0                             # * Time to cache credentials, 0 means forever
-  bind_dn: 'cn=readonly,dc=example,dc=com'                    # * Username for read access to the directory
-  bind_password: 'password'                                   # * Password for the directory
-  autofs_searchbase: 'ou=automount,dc=example,dc=com'         # * Search base for AutoFS
+  linux_admins: 'netsudo'                                     # Group to configure sudo for, if defined
+  starttls: true                                              # Use STARTTLS or not (note: LDAPS is not supported)
+  cacert: '/etc/ssl/certs/ssl-cert-snakeoil.pem'              # LDAP server root CA certificate
+  reqcert: 'never'                                            # Require certfificate for LDAP connections
+  cache_credentials: true                                     # Cache credentials
+  cache_credentials_expiration: 0                             # Time to cache credentials, 0 means forever
+  bind_dn: 'cn=readonly,dc=example,dc=com'                    # Username for read access to the directory
+  bind_password: 'password'                                   # Password for the directory
+  autofs_searchbase: 'ou=automount,dc=example,dc=com'         # Search base for AutoFS
